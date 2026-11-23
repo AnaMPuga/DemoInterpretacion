@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Interpretación de datos · Planta Norte</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDF0F3;--card:#fff;--ink:#1B2733;--mute:#5B6B7A;--line:#D5DBE1;--ok:#1F7A5A;--warn:#9A6A12;--err:#B3402F;--acc:#2F5D8A;--okbg:#DDF1E8;--errbg:#F7E1DC;--warnbg:#F6EBD2;--accbg:#DEE8F2;--greybg:#E6EAEE;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#12181F;--card:#1B242D;--ink:#E6EBF0;--mute:#9AA8B5;--line:#2F3B47;--ok:#5CCB9E;--warn:#E0B25A;--err:#F08A78;--acc:#8DB6E0;--okbg:#17392D;--errbg:#43211C;--warnbg:#3D3015;--accbg:#1D3144;--greybg:#26313C}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#12181F;--card:#1B242D;--ink:#E6EBF0;--mute:#9AA8B5;--line:#2F3B47;--ok:#5CCB9E;--warn:#E0B25A;--err:#F08A78;--acc:#8DB6E0;--okbg:#17392D;--errbg:#43211C;--warnbg:#3D3015;--accbg:#1D3144;--greybg:#26313C}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+main{max-width:920px;margin:0 auto;padding:24px 16px 40px}
+h1{font-size:22px;font-weight:600;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 20px;max-width:66ch}
+.tallies{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.t{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.t b{display:block;font-size:26px;font-weight:600;line-height:1.1}
+.t span{color:var(--mute);font-size:13px}
+.t.p b{color:var(--ok)}.t.n b{color:var(--warn)}
+button{font:500 14px "IBM Plex Sans",system-ui,sans-serif;padding:9px 14px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button:hover{border-color:var(--acc)}button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+button.main{background:var(--acc);border-color:var(--acc);color:#fff}
+@media (prefers-color-scheme:dark){button.main{color:#10202F}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;margin-bottom:16px}
+.card h2{font-size:15px;font-weight:600;margin:0;padding:12px 14px;border-bottom:1px solid var(--line)}
+.q{padding:14px}
+.q .hyp{font-size:18px;font-weight:600;margin:0 0 6px}
+.q p{margin:0 0 6px}
+.q .ev{color:var(--mute)}
+.meter{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:13px;margin:8px 0 14px}
+.meter div{width:120px;height:6px;background:var(--greybg);border-radius:3px;overflow:hidden}
+.meter div i{display:block;height:100%;background:var(--acc)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.fix{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.fix input{flex:1;min-width:200px;padding:9px 12px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}
+th{color:var(--mute);font-weight:500;font-size:13px}
+tr:last-child td{border-bottom:0}
+td.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:500;white-space:nowrap}
+.chip i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.s-hipotesis{background:var(--accbg);color:var(--acc)}
+.s-confirmado,.s-corregido,.s-activo{background:var(--okbg);color:var(--ok)}
+.s-aparcado{background:var(--greybg);color:var(--mute)}
+.s-noint,.s-bloqueado{background:var(--warnbg);color:var(--warn)}
+.al{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);align-items:flex-start;flex-wrap:wrap}
+.al:last-child{border-bottom:0}
+.al small{display:block;color:var(--mute);font-size:13px}
+.done{padding:16px 14px;color:var(--ok);font-weight:500}
+.note{color:var(--mute);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<h1>Interpretación de datos · Planta Norte</h1>
+<p class="sub">Maqueta con datos ficticios. El agente analiza los archivos, resuelve lo que puede y propone una hipótesis con evidencia. La persona del cliente solo contesta las dudas que afectan a los avisos a operarios. Responde tú a las preguntas y mira cómo cambian el glosario y los avisos.</p>
+
+<div class="tallies" id="tallies"></div>
+
+<div class="card">
+<h2>Pregunta para el responsable del cliente</h2>
+<div id="q"></div>
+</div>
+
+<div class="card">
+<h2>Glosario de datos</h2>
+<div class="scroll"><table>
+<thead><tr><th>Campo</th><th>Significado</th><th>Estado</th><th>Origen</th></tr></thead>
+<tbody id="rows"></tbody>
+</table></div>
+</div>
+
+<div class="card">
+<h2>Avisos a operarios</h2>
+<div id="al"></div>
+</div>
+
+<p class="note">Las preguntas se ordenan por impacto en los avisos. Lo que no afecta a ningún aviso queda aparcado y no se pregunta. Todo el sistema se ejecuta en la red del cliente.</p>
+<p style="margin:12px 0 0"><button id="bReset">Reiniciar demo</button></p>
+</main>
+<script>
+const BASE=[
+{id:"COD_MAT",sig:"Código de material; la descripción está en la tabla maestra.",st:"confirmado",por:"Tabla maestra",imp:"alto"},
+{id:"HORA_REG",sig:"El día de producción empieza a las 06:00.",ev:"El 94 % de los registros del primer turno aparece entre las 06:00 y las 06:10.",conf:85,st:"hipotesis",imp:"alto"},
+{id:"FECHA_B",sig:"Fecha de llegada del pedido, no de realización del pedido.",ev:"En los 1.350 registros, FECHA_B es posterior a FECHA_A. Un pedido no puede llegar antes de hacerse.",conf:70,st:"hipotesis",imp:"alto"},
+{id:"EST_40",sig:"El código de estado 40 significa parada por avería.",ev:"Aparece siempre junto a caídas de producción y a órdenes de mantenimiento.",conf:55,st:"hipotesis",imp:"alto"},
+{id:"CLAS_ZX9",sig:"Clasificación interna del cliente. Sin pistas en los datos ni en las tablas maestras.",conf:20,st:"aparcado",imp:"bajo"}];
+const AVISOS=[
+{n:"Stock bajo de material",deps:["COD_MAT"]},
+{n:"Pedido en riesgo de retraso",deps:["FECHA_B"]},
+{n:"Parada de línea prolongada",deps:["HORA_REG","EST_40"]}];
+const LBL={hipotesis:"Hipótesis",confirmado:"Confirmado",corregido:"Corregido",aparcado:"Aparcado",noint:"No interpretable"};
+const ORI={confirmado:"Responsable del cliente",corregido:"Responsable del cliente (corregido)",noint:"Nadie lo sabe: excluido de avisos",aparcado:"Agente: sin impacto en avisos",hipotesis:"Agente: pendiente de confirmar"};
+let F=[],fixing=false;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const get=id=>F.find(f=>f.id===id);
+const ok=f=>f.st==="confirmado"||f.st==="corregido";
+function reset(){F=BASE.map(f=>({...f}));fixing=false;render()}
+function cur(){return F.find(f=>f.st==="hipotesis"&&f.imp==="alto")}
+function answer(kind,txt){const f=cur();if(!f)return;
+if(kind==="ok")f.st="confirmado";
+if(kind==="fix"){f.st="corregido";f.sig=txt}
+if(kind==="no")f.st="noint";
+fixing=false;render()}
+function render(){
+const c=s=>F.filter(f=>f.st===s).length;
+const act=AVISOS.filter(a=>a.deps.every(d=>ok(get(d)))).length;
+$("tallies").innerHTML=[["p",c("confirmado")+c("corregido"),"Campos confirmados"],["",F.filter(f=>f.st==="hipotesis").length,"Preguntas pendientes"],["",c("aparcado"),"Aparcados"],["n",c("noint"),"No interpretables"],["p",act+" de "+AVISOS.length,"Avisos activos"]].map(x=>'<div class="t '+x[0]+'"><b>'+x[1]+'</b><span>'+x[2]+'</span></div>').join("");
+const f=cur();
+if(!f){$("q").innerHTML='<div class="done">No quedan preguntas. El agente ha dejado de preguntar y solo volverá a hacerlo si aparece un dato nuevo o cambia el formato.</div>'}
+else{$("q").innerHTML='<div class="q"><p class="hyp">'+esc(f.sig)+'</p><p class="ev">Campo <b>'+f.id+'</b>. '+esc(f.ev)+'</p><div class="meter">Confianza del agente <div><i style="width:'+f.conf+'%"></i></div>'+f.conf+' %</div>'
++'<div class="acts"><button class="main" id="bY">Confirmo</button><button id="bF">Corrijo</button><button id="bN">No lo sé</button></div>'
++(fixing?'<div class="fix"><input id="tx" placeholder="Escribe el significado correcto" aria-label="Significado correcto"><button class="main" id="bS">Guardar corrección</button></div>':'')+'</div>';
+$("bY").onclick=()=>answer("ok");$("bN").onclick=()=>answer("no");
+$("bF").onclick=()=>{fixing=true;render();$("tx").focus()};
+if(fixing)$("bS").onclick=()=>{const v=$("tx").value.trim();if(v)answer("fix",v)}}
+$("rows").innerHTML=F.map(x=>'<tr><td class="f">'+x.id+'</td><td>'+esc(x.sig)+'</td><td><span class="chip s-'+x.st+'"><i></i>'+LBL[x.st]+'</span></td><td>'+ORI[x.st]+'</td></tr>').join("");
+$("al").innerHTML=AVISOS.map(a=>{const bad=a.deps.map(get).filter(d=>!ok(d));const on=!bad.length;
+const nope=bad.some(d=>d.st==="noint");
+const why=on?"Todos los datos que usa están confirmados.":(nope?"No se activará: depende de un dato no interpretable ("+bad.filter(d=>d.st==="noint").map(d=>d.id).join(", ")+").":"Espera la confirmación de: "+bad.map(d=>d.id).join(", ")+".");
+return '<div class="al"><div>'+a.n+'<small>'+why+'</small></div><span class="chip s-'+(on?"activo":"bloqueado")+'"><i></i>'+(on?"Activo":"Bloqueado")+'</span></div>'}).join("")}
+$("bReset").onclick=reset;
+reset();
+</script>
+</body>
+</html>
